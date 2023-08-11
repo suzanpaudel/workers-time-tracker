@@ -6,47 +6,42 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 import Header from "./components/Header";
 
-// import csvData from "./assets/TrackedTime.csv";
+import csvFile from "./assets/TrackedTime.csv";
+import FilterComponent from "./components/FilterComponent";
 
 const App = () => {
-  // const [csvData, setCsvData] = useState([]);
+  const [csvData, setCsvData] = useState([]);
+  const [projects, setProjects] = useState([]);
 
-  // useEffect(() => {
-  //   Papa.parse("../src/assets/TrackedTime.csv", {
-  //     header: true,
-  //     skipEmptyLines: true,
-  //     complete: (result) => {
-  //       console.log(result.data)
-  //     },
-  //     error: (error) => {
-  //       console.error("Error parsing CSV:", error.message);
-  //     },
-  //   });
-  // }, []);
-
-  useEffect(() => {
-    Papa.parse("../src/assets/TrackedTime.csv", {
+  const importCSV = () => {
+    Papa.parse(csvFile, {
       download: true,
       header: true,
       skipEmptyLines: true,
-      complete: (data) => {
-        console.log(data.data);
-        // setRows(data.data);
+      complete: (result) => {
+        const parsedData = result.data;
+        parsedData.forEach((item) => {
+          if (!uniqueProjectKeys.includes(item.project)) {
+            if (item.project !== "") {
+              uniqueProjectKeys.push(item.project);
+            }
+          }
+        });
+
+        setProjects(uniqueProjectKeys);
+        setCsvData(result.data);
       },
       error: (error) => {
         console.error("Error parsing CSV:", error.message);
       },
     });
-  }, []);
-
-  const importCSV = () => {
-    console.log("importCSV");
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Container>
         <Header clickImport={importCSV} />
+        <FilterComponent />
       </Container>
     </LocalizationProvider>
   );
