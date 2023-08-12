@@ -9,7 +9,7 @@ import getMonthFromString from "./utils/getMonthFromString";
 
 import csvFile from "./assets/TrackedTime.csv";
 import CustomTable from "./components/CustomTable";
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Button } from "@mui/material";
 
 const App = () => {
   const [csvData, setCsvData] = useState([]);
@@ -40,7 +40,12 @@ const App = () => {
   };
 
   const filterDataHandler = () => {
-    calculateDateFrame();
+    if (!csvData || !frequency || !startDate || !endDate) {
+      alert("Import CSV first then select start date, end date and frequency");
+      return;
+    }
+
+    const computedDateFrames = calculateDateFrame();
 
     const filteredData = csvData.slice(1).filter((item) => {
       const startTime = new Date(item.start_time);
@@ -59,7 +64,7 @@ const App = () => {
       const project = item.project;
       const startTime = new Date(item.start_time);
 
-      const matchingFrame = dateFrames.find((frame) => {
+      const matchingFrame = computedDateFrames.find((frame) => {
         const [frameStart, frameEnd] = frame.split(" - ");
         const [frameStartMonthStr, frameStartDateStr] = frameStart.split(" ");
         const [frameEndMonthStr, frameEndDateStr] = frameEnd.split(" ");
@@ -153,6 +158,7 @@ const App = () => {
 
     setFinalData(groupedAndConvertedData);
     setTotalData(projectData);
+    setDateFrames(computedDateFrames);
   };
 
   const importCSV = () => {
@@ -162,7 +168,7 @@ const App = () => {
       skipEmptyLines: true,
       complete: (result) => {
         const parsedData = result.data;
-        setCsvData((prev) => parsedData);
+        setCsvData(parsedData);
 
         const uniqueProjectKeys = [];
 
@@ -175,6 +181,7 @@ const App = () => {
         });
 
         setProjects(uniqueProjectKeys);
+        alert("CSV has been imported.");
       },
       error: (error) => {
         console.error("Error parsing CSV:", error.message);
@@ -231,7 +238,7 @@ const App = () => {
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
-      setDateFrames(dateFrame);
+      return dateFrame;
     }
   };
 
@@ -278,7 +285,11 @@ const App = () => {
             Reset Filter
           </Button>
         </Box>
-        <CustomTable data={finalData} dateFrames={dateFrames} totalData={totalData} />
+        <CustomTable
+          data={finalData}
+          dateFrames={dateFrames}
+          totalData={totalData}
+        />
       </Container>
     </LocalizationProvider>
   );

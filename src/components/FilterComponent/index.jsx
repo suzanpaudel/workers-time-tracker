@@ -33,7 +33,7 @@ const FilterComponent = ({
         width: "100%",
       }}
     >
-      <Grid container spacing={4}>
+      <Grid container spacing={2}>
         <Grid item xs={6} sm={4} md={3}>
           <DatePicker
             label="Start Date"
@@ -61,7 +61,7 @@ const FilterComponent = ({
           />
         </Grid>
         <Grid item xs={12}>
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={2} sx={{marginBottom: '1rem'}}>
             {selectedProjects.map((project) => (
               <Chip
                 key={project}
