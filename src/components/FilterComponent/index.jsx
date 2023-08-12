@@ -1,20 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { DatePicker } from "@mui/x-date-pickers";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
+import ClearIcon from "@mui/icons-material/Clear";
 
 import FrequencySelect from "../FrequencySelect";
 import ProjectSelect from "../ProjectSelect";
 
-const FilterComponent = () => {
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
-  const [selectedProjects, setSelectedProjects] = useState([]);
-
-  console.log(selectedProjects);
-
+const FilterComponent = ({
+  projects,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
+  frequency,
+  setFrequency,
+  selectedProjects,
+  setSelectedProjects,
+}) => {
   const handleRemoveProject = (item) => {
     const filteredProjects = selectedProjects.filter(
       (project) => project != item
@@ -46,24 +51,35 @@ const FilterComponent = () => {
           />
         </Grid>
         <Grid item xs={6} sm={4} md={3}>
-          <FrequencySelect />
+          <FrequencySelect frequency={frequency} setFrequency={setFrequency} />
         </Grid>
         <Grid item xs={6} sm={4} md={3}>
           <ProjectSelect
+            projects={projects}
             selectedOptions={selectedProjects}
             setSelectedOptions={setSelectedProjects}
           />
         </Grid>
         <Grid item xs={12}>
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={2}>
             {selectedProjects.map((project) => (
               <Chip
                 key={project}
                 label={project}
                 onDelete={() => handleRemoveProject(project)}
                 sx={{
-                    borderRadius: 'none'
+                  borderRadius: "0",
+                  height: "36px",
+                  backgroundColor: "#545454",
+                  color: "#fff",
                 }}
+                deleteIcon={
+                  <ClearIcon
+                    style={{
+                      color: "#fff",
+                    }}
+                  />
+                }
               />
             ))}
           </Stack>

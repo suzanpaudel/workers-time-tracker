@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Button, Menu, MenuItem } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 
-const ProjectSelect = ({ selectedOptions, setSelectedOptions }) => {
-  const frequencies = ["Daily", "Weekly", "Monthly"]; // Your list of frequencies
+const ProjectSelect = ({ selectedOptions, setSelectedOptions, projects }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
@@ -43,11 +42,19 @@ const ProjectSelect = ({ selectedOptions, setSelectedOptions }) => {
         Projects {selectedOptions.length ? `(${selectedOptions.length})` : null}
       </Button>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        {frequencies.map((option) => (
-          <MenuItem key={option} onClick={handleOptionClick(option)}>
-            {option}
-          </MenuItem>
-        ))}
+        {projects.length > 0 &&
+          projects.map((option) => (
+            <MenuItem
+              key={option}
+              onClick={handleOptionClick(option)}
+              style={{ width: "100%" }}
+            >
+              {option}
+            </MenuItem>
+          ))}
+        {projects.length === 0 && (
+          <MenuItem disabled>Import CSV first</MenuItem>
+        )}
       </Menu>
     </div>
   );

@@ -5,10 +5,8 @@ import FormControl from "@mui/material/FormControl";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
-const frequencies = ["Weekly", "Bi-weekly", "Monthly", "Bi-Monthly"];
-
-const FrequencySelect = () => {
-  const [frequency, setFrequency] = useState("");
+const FrequencySelect = ({ frequency, setFrequency }) => {
+  const frequencies = ["Weekly", "Bi-weekly", "Monthly", "Bi-Monthly"];
   const [isOpen, setIsOpen] = useState(false);
 
   const handleFrequencyChange = (event) => {
@@ -38,17 +36,17 @@ const FrequencySelect = () => {
             <KeyboardArrowDownIcon sx={{ marginRight: "0.5rem" }} />
           )
         }
-        MenuProps={{
-          anchorOrigin: {
-            vertical: "bottom",
-            horizontal: "left",
-          },
-          transformOrigin: {
-            vertical: "top",
-            horizontal: "left",
-          },
-          getContentAnchorEl: null,
-        }}
+        // MenuProps={{
+        //   anchorOrigin: {
+        //     vertical: "bottom",
+        //     horizontal: "left",
+        //   },
+        //   transformOrigin: {
+        //     vertical: "top",
+        //     horizontal: "left",
+        //   },
+        //   // getContentAnchorEl: null,
+        // }}
       >
         <MenuItem disabled value="">
           Report Frequency

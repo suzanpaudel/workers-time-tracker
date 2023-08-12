@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import DownloadIcon from "@mui/icons-material/Download";
-import CustomButton from "../CustomButton";
 
 const Header = ({ clickImport }) => {
   return (
@@ -9,15 +9,18 @@ const Header = ({ clickImport }) => {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
+        marginBottom: "1rem",
       }}
     >
       <h3>Workers Time Tracker</h3>
-      <CustomButton
+      <Button
         variant="contained"
         startIcon={<DownloadIcon />}
-        text="Import CSV"
-        handleClick={clickImport}
-      />
+        onClick={clickImport}
+        sx={{ textTransform: "none" }}
+      >
+        Import CSV
+      </Button>
     </Box>
   );
 };
