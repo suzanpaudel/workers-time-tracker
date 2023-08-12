@@ -5,8 +5,9 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { Fragment } from "react";
 
-const CustomTable = ({ dateFrames, data }) => {
+const CustomTable = ({ dateFrames, data, totalData }) => {
   const calculateProjectHours = (projectTime) => {
     let totalTime = 0;
 
@@ -27,7 +28,16 @@ const CustomTable = ({ dateFrames, data }) => {
     return totalTime;
   };
 
-  const calculateTotalTime = (projectData) => {
+  const calculateTotalCost = (projectData) => {
+    let totalAmount = 0;
+
+    for (const project in projectData) {
+      totalAmount += projectData[project].cost;
+    }
+    return totalAmount;
+  };
+
+  const getFinalCost = (projectData) => {
     let totalAmount = 0;
 
     for (const project in projectData) {
@@ -62,7 +72,7 @@ const CustomTable = ({ dateFrames, data }) => {
         </TableHead>
         <TableBody>
           {Object.keys(data).map((name) => (
-            <>
+            <Fragment key={name}>
               {Object.keys(data[name].projects).map((projectName, index) => (
                 <TableRow key={`${name} ${projectName}`}>
                   {!index && (
@@ -102,15 +112,50 @@ const CustomTable = ({ dateFrames, data }) => {
                     <TableCell
                       rowSpan={Object.keys(data[name].projects).length}
                     >
-                      {calculateTotalTime(data[name].projects)}
+                      {calculateTotalCost(data[name].projects)}
                     </TableCell>
                   )}
                 </TableRow>
               ))}
-            </>
+            </Fragment>
+          ))}
+
+          {Object.keys(totalData).map((projectName, index) => (
+            <TableRow key={projectName}>
+              {!index && (
+                <TableCell rowSpan={Object.keys(totalData).length} colSpan={2}>
+                  Total
+                </TableCell>
+              )}
+              <TableCell>{projectName}</TableCell>
+              {dateFrames.map((dateFrame) => (
+                <TableCell key={dateFrame}>
+                  {totalData[projectName].time[dateFrame]}
+                </TableCell>
+              ))}
+              <TableCell>
+                {calculateProjectHours(totalData[projectName].time)}
+              </TableCell>
+              {!index && (
+                <TableCell rowSpan={Object.keys(totalData).length}>
+                  {calculateTotalHours(totalData)}
+                </TableCell>
+              )}
+              <TableCell>{totalData[projectName].cost}</TableCell>
+              {!index && (
+                <TableCell rowSpan={Object.keys(totalData).length}>
+                  {getFinalCost(totalData)}
+                </TableCell>
+              )}
+            </TableRow>
           ))}
         </TableBody>
       </Table>
+      {Object.keys(data).length === 0 && (
+        <div>
+          <p>No data found</p>
+        </div>
+      )}
     </TableContainer>
   );
 };

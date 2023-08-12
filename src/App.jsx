@@ -20,6 +20,7 @@ const App = () => {
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [dateFrames, setDateFrames] = useState([]);
   const [finalData, setFinalData] = useState({});
+  const [totalData, setTotalData] = useState({});
 
   const hourlyRates = {
     "Prakash Sharma": 1000,
@@ -120,7 +121,38 @@ const App = () => {
       {}
     );
 
+    const projectData = {};
+    Object.keys(groupedAndConvertedData).forEach((worker) => {
+      const hourlyRate = groupedAndConvertedData[worker].hourlyCost;
+
+      Object.keys(groupedAndConvertedData[worker].projects).forEach(
+        (project) => {
+          if (!projectData[project]) {
+            projectData[project] = {
+              time: {},
+              cost: 0,
+            };
+          }
+
+          Object.keys(
+            groupedAndConvertedData[worker].projects[project].time
+          ).forEach((frame) => {
+            if (!projectData[project].time[frame]) {
+              projectData[project].time[frame] = 0;
+            }
+
+            const hours =
+              groupedAndConvertedData[worker].projects[project].time[frame];
+            const cost = hours * hourlyRate;
+            projectData[project].time[frame] += hours;
+            projectData[project].cost += cost;
+          });
+        }
+      );
+    });
+
     setFinalData(groupedAndConvertedData);
+    setTotalData(projectData);
   };
 
   const importCSV = () => {
@@ -130,7 +162,6 @@ const App = () => {
       skipEmptyLines: true,
       complete: (result) => {
         const parsedData = result.data;
-        console.log(parsedData);
         setCsvData((prev) => parsedData);
 
         const uniqueProjectKeys = [];
@@ -247,7 +278,7 @@ const App = () => {
             Reset Filter
           </Button>
         </Box>
-        <CustomTable data={finalData} dateFrames={dateFrames} />
+        <CustomTable data={finalData} dateFrames={dateFrames} totalData={totalData} />
       </Container>
     </LocalizationProvider>
   );
