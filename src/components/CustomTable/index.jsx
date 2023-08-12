@@ -1,11 +1,12 @@
+import { Fragment } from "react";
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
+import TableRow from "@mui/material/TableRow";
 import TableBody from "@mui/material/TableBody";
+import TableHead from "@mui/material/TableHead";
+import Typography from "@mui/material/Typography";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Fragment } from "react";
 
 const CustomTable = ({ dateFrames, data, totalData }) => {
   const calculateProjectHours = (projectTime) => {
@@ -152,9 +153,9 @@ const CustomTable = ({ dateFrames, data, totalData }) => {
         </TableBody>
       </Table>
       {Object.keys(data).length === 0 && (
-        <div>
-          <p>No data found</p>
-        </div>
+        <Typography style={{ textAlign: "center" }} variant="body1" my={3}>
+          No Data Found
+        </Typography>
       )}
     </TableContainer>
   );
