@@ -8,6 +8,8 @@ import FilterComponent from "./components/FilterComponent";
 import getMonthFromString from "./utils/getMonthFromString";
 
 import csvFile from "./assets/TrackedTime.csv";
+import CustomTable from "./components/CustomTable";
+import { Box, Button, Grid } from "@mui/material";
 
 const App = () => {
   const [csvData, setCsvData] = useState([]);
@@ -17,7 +19,7 @@ const App = () => {
   const [frequency, setFrequency] = useState("");
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [dateFrames, setDateFrames] = useState([]);
-  const [filteredData, setFilteredData] = useState({});
+  const [finalData, setFinalData] = useState({});
 
   const hourlyRates = {
     "Prakash Sharma": 1000,
@@ -25,6 +27,15 @@ const App = () => {
     "Steve Jobs": 800,
     "Dan Abrahamov": 700,
     "Mausam Khanal": 600,
+  };
+
+  const resetFilters = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setFrequency("");
+    setSelectedProjects([]);
+    setDateFrames([]);
+    setFinalData({});
   };
 
   const filterDataHandler = () => {
@@ -89,36 +100,28 @@ const App = () => {
 
     const groupedAndConvertedData = Object.keys(groupedData).reduce(
       (acc, worker) => {
-        acc[worker] = {};
+        acc[worker] = { projects: {} };
+        acc[worker]["hourlyCost"] = hourlyRates[worker] || 0;
+
         Object.keys(groupedData[worker]).forEach((project) => {
-          acc[worker][project] = { time: {}, cost: 0 };
+          acc[worker].projects[project] = { time: {}, cost: 0 };
           Object.keys(groupedData[worker][project]).forEach((frame) => {
             const durationInSeconds = groupedData[worker][project][frame];
             const durationInHours = Math.round(durationInSeconds / 3600);
-            acc[worker][project].time[frame] = durationInHours;
+            acc[worker].projects[project].time[frame] = durationInHours;
             const hourlyRate = hourlyRates[worker] || 0;
             const totalCost = durationInHours * hourlyRate;
-            acc[worker][project].cost += totalCost;
+            acc[worker].projects[project].cost += totalCost;
           });
         });
+
         return acc;
       },
       {}
     );
 
-    setFilteredData(groupedAndConvertedData);
+    setFinalData(groupedAndConvertedData);
   };
-
-  const tableRows = [
-    "Name",
-    "Hourly Rate",
-    "Projects",
-    ...dateFrames,
-    "Project Hours",
-    "Total Hours",
-    "Project Cost",
-    "Total Cost",
-  ];
 
   const importCSV = () => {
     Papa.parse(csvFile, {
@@ -131,7 +134,6 @@ const App = () => {
         setCsvData((prev) => parsedData);
 
         const uniqueProjectKeys = [];
-        const uniqueWorkers = [];
 
         parsedData.forEach((item) => {
           if (!uniqueProjectKeys.includes(item.project)) {
@@ -217,25 +219,35 @@ const App = () => {
           selectedProjects={selectedProjects}
           setSelectedProjects={setSelectedProjects}
         />
-        <button onClick={filterDataHandler}>Filter Data</button>
-        <table>
-          <thead>
-            <tr>
-              {tableRows.map((header) => (
-                <th key={header}>{header}</th>
-              ))}
-            </tr>
-          </thead>
-        </table>
-        {/* <tbody>
-          {filteredData.slice(1).map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex}>{cell}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody> */}
+        <Box
+          sx={{
+            marginBottom: "1rem",
+          }}
+        >
+          <Button
+            onClick={filterDataHandler}
+            variant="contained"
+            color="primary"
+            sx={{
+              marginRight: "1rem",
+              textTransform: "none",
+            }}
+          >
+            Filter Data
+          </Button>
+          <Button
+            onClick={resetFilters}
+            variant="outlined"
+            color="primary"
+            sx={{
+              marginRight: "1rem",
+              textTransform: "none",
+            }}
+          >
+            Reset Filter
+          </Button>
+        </Box>
+        <CustomTable data={finalData} dateFrames={dateFrames} />
       </Container>
     </LocalizationProvider>
   );
