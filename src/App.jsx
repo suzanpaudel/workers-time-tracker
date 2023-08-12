@@ -40,7 +40,7 @@ const App = () => {
   };
 
   const filterDataHandler = () => {
-    if (!csvData || !frequency || !startDate || !endDate) {
+    if (csvData.length === 0 || !frequency || !startDate || !endDate) {
       alert("Import CSV first then select start date, end date and frequency");
       return;
     }
@@ -231,6 +231,10 @@ const App = () => {
             rangeStart.getMonth() + 2,
             0
           );
+        }
+
+        if (rangeEnd > end) {
+          rangeEnd = new Date(end);
         }
 
         dateFrame.push(formatDateRange(rangeStart, rangeEnd));
