@@ -13,21 +13,17 @@ const FrequencySelect = ({ frequency, setFrequency }) => {
     setFrequency(event.target.value);
   };
 
-  const handleMenuOpen = () => {
-    setIsOpen(true);
-  };
-
-  const handleMenuClose = () => {
-    setIsOpen(false);
+  const toggleMenuOpen = () => {
+    setIsOpen((prevIsOpen) => !prevIsOpen);
   };
 
   return (
-    <FormControl sx={{ minWidth: "100%" }}>
+    <FormControl sx={{ width: "100%" }}>
       <Select
         value={frequency}
         onChange={handleFrequencyChange}
-        onOpen={handleMenuOpen}
-        onClose={handleMenuClose}
+        onOpen={toggleMenuOpen}
+        onClose={toggleMenuOpen}
         displayEmpty
         IconComponent={() =>
           isOpen ? (
@@ -36,17 +32,6 @@ const FrequencySelect = ({ frequency, setFrequency }) => {
             <KeyboardArrowDownIcon sx={{ marginRight: "0.5rem" }} />
           )
         }
-        // MenuProps={{
-        //   anchorOrigin: {
-        //     vertical: "bottom",
-        //     horizontal: "left",
-        //   },
-        //   transformOrigin: {
-        //     vertical: "top",
-        //     horizontal: "left",
-        //   },
-        //   // getContentAnchorEl: null,
-        // }}
       >
         <MenuItem disabled value="">
           Report Frequency

@@ -22,7 +22,7 @@ const FilterComponent = ({
 }) => {
   const handleRemoveProject = (item) => {
     const filteredProjects = selectedProjects.filter(
-      (project) => project != item
+      (project) => project !== item
     );
     setSelectedProjects(filteredProjects);
   };

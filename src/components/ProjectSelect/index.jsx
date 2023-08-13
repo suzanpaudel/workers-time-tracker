@@ -42,7 +42,7 @@ const ProjectSelect = ({ selectedOptions, setSelectedOptions, projects }) => {
         Projects {selectedOptions.length ? `(${selectedOptions.length})` : null}
       </Button>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        {projects.length > 0 &&
+        {projects.length > 0 ? (
           projects.map((option) => (
             <MenuItem
               key={option}
@@ -51,8 +51,8 @@ const ProjectSelect = ({ selectedOptions, setSelectedOptions, projects }) => {
             >
               {option}
             </MenuItem>
-          ))}
-        {projects.length === 0 && (
+          ))
+        ) : (
           <MenuItem disabled>Import CSV first</MenuItem>
         )}
       </Menu>
