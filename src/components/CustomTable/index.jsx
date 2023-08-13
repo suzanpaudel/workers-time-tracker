@@ -122,7 +122,7 @@ const CustomTable = ({ dateFrames, data, totalData }) => {
           ))}
 
           {Object.keys(totalData).map((projectName, index) => (
-            <TableRow key={projectName}>
+            <TableRow key={projectName} className={`${index == 0 ? 'borderTop' : null }`}>
               {!index && (
                 <TableCell rowSpan={Object.keys(totalData).length} colSpan={2}>
                   Total
