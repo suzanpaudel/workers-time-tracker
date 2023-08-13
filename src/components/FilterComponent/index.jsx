@@ -61,7 +61,7 @@ const FilterComponent = ({
           />
         </Grid>
         <Grid item xs={12}>
-          <Stack direction="row" spacing={2} sx={{marginBottom: '1rem'}}>
+          <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap flexWrap="wrap" sx={{marginBottom: '1rem'}}>
             {selectedProjects.map((project) => (
               <Chip
                 key={project}
