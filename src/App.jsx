@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Papa from "papaparse";
 import Container from "@mui/material/Container";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -22,21 +22,92 @@ const App = () => {
   const [finalData, setFinalData] = useState({});
   const [totalData, setTotalData] = useState({});
 
-  const hourlyRates = {
+  const getHourlyRates = () => ({
     "Prakash Sharma": 1000,
     "Sagun Karanjit": 900,
     "Steve Jobs": 800,
     "Dan Abrahamov": 700,
     "Mausam Khanal": 600,
+  });
+
+  const hourlyRates = getHourlyRates();
+
+  const importCSV = () => {
+    Papa.parse(csvFile, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const parsedData = result.data;
+        setCsvData(parsedData);
+
+        const uniqueProjects = new Set(
+          parsedData.map((item) => item.project).filter(Boolean)
+        );
+        setProjects(Array.from(uniqueProjects));
+        alert("CSV has been imported.");
+      },
+      error: (error) => {
+        console.error("Error parsing CSV:", error.message);
+      },
+    });
   };
 
-  const resetFilters = () => {
-    setStartDate(null);
-    setEndDate(null);
-    setFrequency("");
-    setSelectedProjects([]);
-    setDateFrames([]);
-    setFinalData({});
+  const formatDateRange = (start, end) => {
+    const startDate = start.toLocaleDateString("default", {
+      month: "short",
+      day: "numeric",
+    });
+    const endDate = end.toLocaleDateString("default", {
+      month: "short",
+      day: "numeric",
+    });
+    return `${startDate} - ${endDate}`;
+  };
+
+  const calculateDateFrame = () => {
+    if (startDate && endDate && frequency) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      const dateFrame = [];
+      let currentDate = new Date(start);
+
+      while (currentDate <= end) {
+        const rangeStart = new Date(currentDate);
+        let rangeEnd;
+
+        if (frequency === "Weekly") {
+          rangeEnd = new Date(rangeStart);
+          rangeEnd.setDate(rangeEnd.getDate() + 6);
+        } else if (frequency === "Bi-weekly") {
+          rangeEnd = new Date(rangeStart);
+          rangeEnd.setDate(rangeEnd.getDate() + 13);
+        } else if (frequency === "Monthly") {
+          rangeEnd = new Date(
+            rangeStart.getFullYear(),
+            rangeStart.getMonth() + 1,
+            0
+          );
+        } else if (frequency === "Bi-Monthly") {
+          rangeEnd = new Date(
+            rangeStart.getFullYear(),
+            rangeStart.getMonth() + 2,
+            0
+          );
+        }
+
+        if (rangeEnd > end) {
+          rangeEnd = new Date(end);
+        }
+
+        dateFrame.push(formatDateRange(rangeStart, rangeEnd));
+        currentDate = new Date(rangeEnd);
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return dateFrame;
+    }
   };
 
   const filterDataHandler = () => {
@@ -161,89 +232,13 @@ const App = () => {
     setDateFrames(computedDateFrames);
   };
 
-  const importCSV = () => {
-    Papa.parse(csvFile, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: (result) => {
-        const parsedData = result.data;
-        setCsvData(parsedData);
-
-        const uniqueProjectKeys = [];
-
-        parsedData.forEach((item) => {
-          if (!uniqueProjectKeys.includes(item.project)) {
-            if (item.project !== "") {
-              uniqueProjectKeys.push(item.project);
-            }
-          }
-        });
-
-        setProjects(uniqueProjectKeys);
-        alert("CSV has been imported.");
-      },
-      error: (error) => {
-        console.error("Error parsing CSV:", error.message);
-      },
-    });
-  };
-
-  const formatDateRange = (start, end) => {
-    const startDate = start.toLocaleDateString("default", {
-      month: "short",
-      day: "numeric",
-    });
-    const endDate = end.toLocaleDateString("default", {
-      month: "short",
-      day: "numeric",
-    });
-    return `${startDate} - ${endDate}`;
-  };
-
-  const calculateDateFrame = () => {
-    if (startDate && endDate && frequency) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
-      const dateFrame = [];
-      let currentDate = new Date(start);
-
-      while (currentDate <= end) {
-        const rangeStart = new Date(currentDate);
-        let rangeEnd;
-
-        if (frequency === "Weekly") {
-          rangeEnd = new Date(rangeStart);
-          rangeEnd.setDate(rangeEnd.getDate() + 6);
-        } else if (frequency === "Bi-weekly") {
-          rangeEnd = new Date(rangeStart);
-          rangeEnd.setDate(rangeEnd.getDate() + 13);
-        } else if (frequency === "Monthly") {
-          rangeEnd = new Date(
-            rangeStart.getFullYear(),
-            rangeStart.getMonth() + 1,
-            0
-          );
-        } else if (frequency === "Bi-Monthly") {
-          rangeEnd = new Date(
-            rangeStart.getFullYear(),
-            rangeStart.getMonth() + 2,
-            0
-          );
-        }
-
-        if (rangeEnd > end) {
-          rangeEnd = new Date(end);
-        }
-
-        dateFrame.push(formatDateRange(rangeStart, rangeEnd));
-        currentDate = new Date(rangeEnd);
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-
-      return dateFrame;
-    }
+  const resetFilters = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setFrequency("");
+    setSelectedProjects([]);
+    setDateFrames([]);
+    setFinalData({});
   };
 
   return (
