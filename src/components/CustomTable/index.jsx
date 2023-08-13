@@ -1,12 +1,15 @@
 import { Fragment } from "react";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableRow from "@mui/material/TableRow";
-import TableBody from "@mui/material/TableBody";
-import TableHead from "@mui/material/TableHead";
-import Typography from "@mui/material/Typography";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableHead,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import { tableCellClasses } from "@mui/material/TableCell";
 
 const CustomTable = ({ dateFrames, data, totalData }) => {
   const calculateProjectHours = (projectTime) => {

@@ -1,10 +1,7 @@
 import React from "react";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import { DatePicker } from "@mui/x-date-pickers";
-import Chip from "@mui/material/Chip";
-import Stack from "@mui/material/Stack";
 import ClearIcon from "@mui/icons-material/Clear";
+import { Box, Chip, Grid, Stack } from "@mui/material";
 
 import FrequencySelect from "../FrequencySelect";
 import ProjectSelect from "../ProjectSelect";

@@ -1,15 +1,14 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Papa from "papaparse";
-import Container from "@mui/material/Container";
+import { Box, Button, Container } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Header from "./components/Header";
+import CustomTable from "./components/CustomTable";
 import FilterComponent from "./components/FilterComponent";
 import getMonthFromString from "./utils/getMonthFromString";
 
 import csvFile from "./assets/TrackedTime.csv";
-import CustomTable from "./components/CustomTable";
-import { Box, Button } from "@mui/material";
 
 const App = () => {
   const [csvData, setCsvData] = useState([]);
