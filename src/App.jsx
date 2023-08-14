@@ -31,27 +31,6 @@ const App = () => {
 
   const hourlyRates = getHourlyRates();
 
-  const importCSV = () => {
-    Papa.parse(csvFile, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: (result) => {
-        const parsedData = result.data;
-        setCsvData(parsedData);
-
-        const uniqueProjects = new Set(
-          parsedData.map((item) => item.project).filter(Boolean)
-        );
-        setProjects(Array.from(uniqueProjects));
-        alert("CSV has been imported.");
-      },
-      error: (error) => {
-        console.error("Error parsing CSV:", error.message);
-      },
-    });
-  };
-
   const formatDateRange = (start, end) => {
     const startDate = start.toLocaleDateString("default", {
       month: "short",
@@ -107,6 +86,111 @@ const App = () => {
 
       return dateFrame;
     }
+  };
+
+  const getGroupedAndConvertedData = (data) =>
+    Object.keys(data).reduce((acc, worker) => {
+      acc[worker] = { projects: {} };
+      acc[worker]["hourlyCost"] = hourlyRates[worker] || 0;
+
+      Object.keys(data[worker]).forEach((project) => {
+        acc[worker].projects[project] = { time: {}, cost: 0 };
+        Object.keys(data[worker][project]).forEach((frame) => {
+          const durationInSeconds = data[worker][project][frame];
+          const durationInHours = Math.round(durationInSeconds / 3600);
+          acc[worker].projects[project].time[frame] = durationInHours;
+          const hourlyRate = hourlyRates[worker] || 0;
+          const totalCost = durationInHours * hourlyRate;
+          acc[worker].projects[project].cost += totalCost;
+        });
+      });
+
+      return acc;
+    }, {});
+
+  const getOverAllProjectData = (data) => {
+    const projectData = {};
+    Object.keys(data).forEach((worker) => {
+      const hourlyRate = data[worker].hourlyCost;
+
+      Object.keys(data[worker].projects).forEach((project) => {
+        if (!projectData[project]) {
+          projectData[project] = {
+            time: {},
+            cost: 0,
+          };
+        }
+
+        Object.keys(data[worker].projects[project].time).forEach((frame) => {
+          if (!projectData[project].time[frame]) {
+            projectData[project].time[frame] = 0;
+          }
+
+          const hours = data[worker].projects[project].time[frame];
+          const cost = hours * hourlyRate;
+          projectData[project].time[frame] += hours;
+          projectData[project].cost += cost;
+        });
+      });
+    });
+    return projectData;
+  };
+
+  const setInitialData = (data) => {
+    const groupedData = data
+      .slice(1)
+      .filter((item) => item.workers !== "")
+      .reduce((acc, item) => {
+        const worker = item.workers;
+        const project = item.project;
+        const matchingFrame = "All";
+        if (!acc[worker]) {
+          acc[worker] = {};
+        }
+
+        if (!!project) {
+          if (!acc[worker][project]) {
+            acc[worker][project] = {};
+          }
+          if (!acc[worker][project][matchingFrame]) {
+            acc[worker][project][matchingFrame] = 0;
+          }
+          const durationInSeconds = parseInt(item.duration_seconds);
+          acc[worker][project][matchingFrame] += durationInSeconds;
+        }
+        return acc;
+      }, {});
+
+    const groupedAndConvertedData = getGroupedAndConvertedData(groupedData);
+
+    const projectData = getOverAllProjectData(groupedAndConvertedData);
+
+    setFinalData(groupedAndConvertedData);
+    setTotalData(projectData);
+  };
+
+  const importCSV = () => {
+    Papa.parse(csvFile, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const parsedData = result.data;
+        setCsvData(parsedData);
+
+        const uniqueProjects = new Set(
+          parsedData.map((item) => item.project).filter(Boolean)
+        );
+        setProjects(Array.from(uniqueProjects));
+
+        setInitialData(parsedData);
+
+        alert("CSV has been imported.");
+      },
+      error: (error) => {
+        console.error("Error parsing CSV:", error.message);
+      },
+    });
   };
 
   const filterDataHandler = () => {
@@ -174,57 +258,9 @@ const App = () => {
       return acc;
     }, {});
 
-    const groupedAndConvertedData = Object.keys(groupedData).reduce(
-      (acc, worker) => {
-        acc[worker] = { projects: {} };
-        acc[worker]["hourlyCost"] = hourlyRates[worker] || 0;
+    const groupedAndConvertedData = getGroupedAndConvertedData(groupedData);
 
-        Object.keys(groupedData[worker]).forEach((project) => {
-          acc[worker].projects[project] = { time: {}, cost: 0 };
-          Object.keys(groupedData[worker][project]).forEach((frame) => {
-            const durationInSeconds = groupedData[worker][project][frame];
-            const durationInHours = Math.round(durationInSeconds / 3600);
-            acc[worker].projects[project].time[frame] = durationInHours;
-            const hourlyRate = hourlyRates[worker] || 0;
-            const totalCost = durationInHours * hourlyRate;
-            acc[worker].projects[project].cost += totalCost;
-          });
-        });
-
-        return acc;
-      },
-      {}
-    );
-
-    const projectData = {};
-    Object.keys(groupedAndConvertedData).forEach((worker) => {
-      const hourlyRate = groupedAndConvertedData[worker].hourlyCost;
-
-      Object.keys(groupedAndConvertedData[worker].projects).forEach(
-        (project) => {
-          if (!projectData[project]) {
-            projectData[project] = {
-              time: {},
-              cost: 0,
-            };
-          }
-
-          Object.keys(
-            groupedAndConvertedData[worker].projects[project].time
-          ).forEach((frame) => {
-            if (!projectData[project].time[frame]) {
-              projectData[project].time[frame] = 0;
-            }
-
-            const hours =
-              groupedAndConvertedData[worker].projects[project].time[frame];
-            const cost = hours * hourlyRate;
-            projectData[project].time[frame] += hours;
-            projectData[project].cost += cost;
-          });
-        }
-      );
-    });
+    const projectData = getOverAllProjectData(groupedAndConvertedData);
 
     setFinalData(groupedAndConvertedData);
     setTotalData(projectData);
@@ -237,7 +273,7 @@ const App = () => {
     setFrequency("");
     setSelectedProjects([]);
     setDateFrames([]);
-    setFinalData({});
+    setInitialData(csvData);
   };
 
   return (
